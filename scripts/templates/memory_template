@@ -1,0 +1,139 @@
+-- Memory Analysis Template for Revolution Idol
+-- Copy this template and modify for custom analysis tasks
+
+-- Script configuration
+local config = {
+    target_type = "BigInteger",
+    max_objects = 1000,
+    enable_decryption = true,
+    output_results = true
+}
+
+-- Logging helper
+function script_log(message, level)
+    level = level or "info"
+    log("[TEMPLATE] " .. message, level)
+end
+
+-- Main analysis function
+function analyze_memory()
+    script_log("Starting memory analysis with template script")
+    
+    -- Step 1: Find target objects
+    script_log("Searching for " .. config.target_type .. " objects...")
+    local objects = find_encrypted_bigintegers()
+    
+    if #objects == 0 then
+        script_log("No objects found", "warn")
+        return false
+    end
+    
+    script_log("Found " .. #objects .. " objects")
+    
+    -- Step 2: Process each object
+    local results = {}
+    for i, obj in ipairs(objects) do
+        if i > config.max_objects then
+            script_log("Reached maximum object limit (" .. config.max_objects .. ")")
+            break
+        end
+        
+        local result = process_object(obj, i)
+        if result then
+            table.insert(results, result)
+        end
+    end
+    
+    -- Step 3: Output results
+    if config.output_results then
+        output_results(results)
+    end
+    
+    script_log("Analysis complete. Processed " .. #results .. " objects successfully")
+    return true
+end
+
+-- Process individual object
+function process_object(obj, index)
+    script_log("Processing object " .. index .. " at " .. address_to_hex(obj.address), "debug")
+    
+    local result = {
+        index = index,
+        address = obj.address,
+        bigint_ptr = obj.bigint_ptr,
+        key_ptr = obj.key_ptr,
+        decrypted = false,
+        data = nil
+    }
+    
+    -- Attempt decryption if enabled
+    if config.enable_decryption then
+        local success = decrypt_biginteger(obj.address)
+        if success then
+            result.decrypted = true
+            result.data = read_memory(obj.bigint_ptr, 64) -- Read first 64 bytes
+            script_log("Successfully decrypted object " .. index, "debug")
+        else
+            script_log("Failed to decrypt object " .. index, "warn")
+        end
+    end
+    
+    return result
+end
+
+-- Output analysis results
+function output_results(results)
+    script_log("=== ANALYSIS RESULTS ===")
+    script_log("Total objects processed: " .. #results)
+    
+    local decrypted_count = 0
+    for _, result in ipairs(results) do
+        if result.decrypted then
+            decrypted_count = decrypted_count + 1
+        end
+    end
+    
+    script_log("Successfully decrypted: " .. decrypted_count)
+    script_log("Failed to decrypt: " .. (#results - decrypted_count))
+    
+    -- Store results in global variable for further analysis
+    _G.template_results = results
+    
+    script_log("Results stored in _G.template_results for further analysis")
+end
+
+-- Pattern scanning helper
+function scan_for_pattern(hex_pattern)
+    script_log("Scanning for pattern: " .. hex_pattern)
+    local addresses = scan_pattern(hex_pattern)
+    script_log("Found " .. #addresses .. " pattern matches")
+    return addresses
+end
+
+-- Memory validation helper
+function validate_address(addr)
+    if addr == 0 then
+        return false
+    end
+    
+    -- Check if address is in valid range (basic validation)
+    if addr < 0x10000 or addr > 0x7FFFFFFFFFFF then
+        return false
+    end
+    
+    return true
+end
+
+-- Custom decryption function (modify based on specific needs)
+function custom_decrypt(encrypted_data, key)
+    -- Implement custom decryption logic here
+    -- This is a placeholder - replace with actual algorithm
+    script_log("Custom decryption not implemented", "warn")
+    return nil
+end
+
+-- Execute main analysis
+script_log("Template script loaded. Call analyze_memory() to start analysis.")
+
+-- Uncomment the next line to run automatically when script loads
+-- analyze_memory()

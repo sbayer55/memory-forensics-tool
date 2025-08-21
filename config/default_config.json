@@ -1,0 +1,79 @@
+{
+  "process": {
+    "target_name": "Revolution Idol.exe",
+    "wait_for_process": true,
+    "wait_timeout_seconds": 30
+  },
+  "memory_scanning": {
+    "chunk_size": 65536,
+    "max_read_size": 16777216,
+    "scan_alignment": 4,
+    "skip_readonly_regions": false,
+    "signatures": {
+      "container_struct": {
+        "pattern": "48 8B ?? ?? ?? ?? ?? 48 8B ?? ?? ?? ?? ??",
+        "description": "Container struct with BigInteger and key pointers"
+      },
+      "biginteger_header": {
+        "pattern": "?? ?? ?? ?? 01 00 00 00",
+        "description": "BigInteger object header signature"
+      }
+    }
+  },
+  "decryption": {
+    "default_method": "custom",
+    "methods": {
+      "xor": {
+        "enabled": true,
+        "key_size": 16
+      },
+      "aes": {
+        "enabled": false,
+        "key_size": 32,
+        "iv_size": 16
+      },
+      "custom": {
+        "enabled": true,
+        "key_size": 16,
+        "description": "Revolution Idol specific encryption"
+      }
+    },
+    "validation": {
+      "check_biginteger_header": true,
+      "verify_key_pattern": true,
+      "max_biginteger_size": 1048576
+    }
+  },
+  "lua": {
+    "script_directory": "scripts/",
+    "auto_load_examples": true,
+    "max_execution_time_ms": 30000,
+    "memory_limit_mb": 128
+  },
+  "logging": {
+    "level": "info",
+    "file_output": "logs/memory_tool.log",
+    "console_output": true,
+    "max_file_size_mb": 100,
+    "max_files": 5
+  },
+  "output": {
+    "default_format": "json",
+    "include_timestamps": true,
+    "include_memory_addresses": true,
+    "export_decrypted_data": true,
+    "export_encryption_keys": false,
+    "pretty_print": true
+  },
+  "performance": {
+    "enable_multithreading": true,
+    "max_worker_threads": 4,
+    "memory_cache_size_mb": 64,
+    "scan_progress_updates": true
+  },
+  "security": {
+    "require_elevated_privileges": true,
+    "validate_target_process": true,
+    "log_sensitive_operations": false
+  }
+}
