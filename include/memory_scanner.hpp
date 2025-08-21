@@ -26,6 +26,13 @@ namespace MemoryForensics {
         ByteVector ReadBytes(MemoryAddress address, size_t size);
         std::string ReadString(MemoryAddress address, size_t max_length = 256);
         
+        // Primitive type reading functions
+        std::optional<int32_t> ReadInt32(MemoryAddress address);
+        std::optional<uint32_t> ReadUInt32(MemoryAddress address);
+        std::optional<uint64_t> ReadUInt64(MemoryAddress address);
+        std::optional<bool> ReadBool(MemoryAddress address);
+        std::optional<std::vector<uint32_t>> ReadUInt32Array(MemoryAddress address, size_t count);
+        
         // Pointer following
         std::optional<MemoryAddress> FollowPointer(MemoryAddress ptr_address);
         std::vector<MemoryAddress> FollowPointerChain(MemoryAddress base, 

@@ -22,14 +22,6 @@ namespace MemoryForensics {
         MemoryAddress ee_class_ptr;
     };
     
-    struct BigIntegerObject {
-        ObjectHeader header;
-        MemoryAddress method_table;
-        int32_t sign;
-        uint32_t* bits;
-        uint32_t bits_array_length;
-    };
-    
     class DotNetParser {
     public:
         explicit DotNetParser(std::shared_ptr<ProcessManager> process_mgr);
@@ -39,10 +31,6 @@ namespace MemoryForensics {
         bool IsValidObject(MemoryAddress object_addr);
         std::optional<MethodTable> GetMethodTable(MemoryAddress object_addr);
         std::string GetTypeName(MemoryAddress method_table_addr);
-        
-        // BigInteger specific
-        bool IsBigIntegerObject(MemoryAddress object_addr);
-        std::optional<BigIntegerObject> ParseBigInteger(MemoryAddress object_addr);
         
         // Managed heap traversal
         std::vector<MemoryAddress> FindObjectsOfType(const std::string& type_name);

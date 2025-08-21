@@ -1,8 +1,6 @@
 #pragma once
 
-#include <Windows.h>
-#include <TlHelp32.h>
-#include <Psapi.h>
+#include "platform_compat.hpp"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -18,6 +16,9 @@
 
 // JSON configuration
 #include <nlohmann/json.hpp>
+
+// Additional formatting support
+#include <fmt/format.h>
 
 namespace MemoryForensics {
     // Type aliases for clarity

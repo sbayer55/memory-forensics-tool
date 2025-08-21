@@ -24,12 +24,20 @@ else()
     add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+# macOS build option
+option(BUILD_FOR_MACOS "Build for macOS with Windows API stubs" OFF)
+if(BUILD_FOR_MACOS OR APPLE)
+    add_compile_definitions(MACOS_BUILD)
+    message(STATUS "Building for macOS with Windows API compatibility layer")
+endif()
+
 # Find required packages
 find_package(Lua REQUIRED)
 find_package(sol2 CONFIG REQUIRED)
 find_package(CLI11 CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
+find_package(fmt CONFIG REQUIRED)
 
 # Optional packages
 find_package(Boost QUIET)
@@ -46,6 +54,10 @@ set(SOURCES
     src/process_manager.cpp
     src/decryption_engine.cpp
     src/dotnet_parser.cpp
+    src/app_logger.cpp
+    src/dotnet_biginteger_reader.cpp
+    src/obscured_biginteger_reader.cpp
+    src/common.cpp
 )
 
 # Header files
@@ -56,6 +68,9 @@ set(HEADERS
     include/decryption_engine.hpp
     include/dotnet_parser.hpp
     include/common.hpp
+    include/app_logger.hpp
+    include/dotnet_biginteger_reader.hpp
+    include/obscured_biginteger_reader.hpp
 )
 
 # Create executable
@@ -68,10 +83,11 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     CLI11::CLI11
     spdlog::spdlog
     nlohmann_json::nlohmann_json
+    fmt::fmt
 )
 
 # Windows-specific libraries
-if(WIN32)
+if(WIN32 AND NOT BUILD_FOR_MACOS)
     target_link_libraries(${PROJECT_NAME} PRIVATE
         psapi
         tlhelp32
@@ -137,6 +153,6 @@ install(FILES config/default_config.json
 
 # vcpkg integration hint
 message(STATUS "To install dependencies with vcpkg:")
-message(STATUS "  vcpkg install lua sol2 cli11 spdlog nlohmann-json")
+message(STATUS "  vcpkg install lua sol2 cli11 spdlog nlohmann-json fmt")
 message(STATUS "  vcpkg install microsoft-detours --optional")
 message(STATUS "Configure with: cmake -DCMAKE_TOOLCHAIN_FILE=[vcpkg-root]/scripts/buildsystems/vcpkg.cmake")
